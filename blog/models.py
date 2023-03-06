@@ -18,7 +18,7 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=0)
     likes = models.ManyToManyField(
-        User, related_name='blogpost_like', blank=True)
+        User, related_name='blog_likes', blank=True)
 
     class Meta:
         ordering = ["-created_on"]
@@ -28,6 +28,7 @@ class Post(models.Model):
 
     def number_of_likes(self):
         return self.likes.count()
+
 
 class Comment(models.Model):
     post = models.ForeignKey(
@@ -40,7 +41,7 @@ class Comment(models.Model):
     approved = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['created_on']  #  ordered by newset
+        ordering = ['created_on']
 
     def __str__(self):
         return f"Comment {self.body} by {self.name}"
