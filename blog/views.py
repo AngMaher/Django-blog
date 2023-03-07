@@ -1,14 +1,32 @@
 from django.shortcuts import render
-from django.views import generic
+from django.views import generic, View
+from django.shortcuts import get_object_or_404
 from .models import Post
 
 
 class PostList(generic.ListView):
     model = Post
-    #  list of posts status=1(approved) and ordered by when created
     queryset = Post.objects.filter(status=1).order_by('-created_on')
-    # name of html file that our view will be rendered to
-    template_name = "index.html"
-    # paginate(separate into pages) limit 6 means will only show 6 posts
-    # on front page, any more django will auto do page nav
+    template_name = 'index.html'
     paginate_by = 6
+
+
+class PostDetail(View):
+
+    def get(self, request, slug, *args, **kwargs):
+        queryset = Post.objects.filter(status=1)
+        post = get_object_or_404(queryset, slug=slug)
+        comments = post.comments.filter(approved=True).order_by('created_on')
+        liked = False
+        if post.likes.filter(id=self.request.user.id).exists():
+            liked = True
+        
+        return render(
+            request,
+            "post_detail.html",
+            {
+                "post": post,
+                "comments": comments,
+                "liked": liked
+            }
+        )
